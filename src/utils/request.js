@@ -5,6 +5,8 @@ import axios from 'axios'
 const request = axios.create({
   baseURL: 'http://api-toutiao-web.itheima.net'
 })
+// const req2 = axiox.create()
+// req2.default.baseURL = 'http://127.0.0.1"3000'
 
 // 导出请求方法
 export default request
