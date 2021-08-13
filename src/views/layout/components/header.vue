@@ -2,7 +2,11 @@
 <template>
   <div class="header-container">
     <div class="header-title">
-      <i class="el-icon-s-fold"></i>
+      <i :class="{
+        'el-icon-s-fold': isasidecollapse,
+        'el-icon-s-unfold': !isasidecollapse
+      }"
+      @click="changeAside()"></i>
       <span>江苏传智播客科技教育有限公司</span>
     </div>
     <el-dropdown>
@@ -13,21 +17,22 @@
       </div>
       <el-dropdown-menu slot="dropdown">
         <el-dropdown-item>设置</el-dropdown-item>
-        <el-dropdown-item>退出</el-dropdown-item>
+        <el-dropdown-item @click.native="logout">退出</el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
    </div>
 </template>
 
 <script>
+import Bus from '@/utils/bus.js'
 import { getUserProfile } from '@/api/user'
 export default {
   name: 'AppHeader',
   components: {},
-  props: {},
   data () {
     return {
-      user: {}
+      user: {},
+      isasidecollapse: false
     }
   },
   computed: {},
@@ -40,7 +45,29 @@ export default {
     loadUserProfile () {
       getUserProfile().then(res => {
         this.user = res.data.data
-        // console.log(res)
+      })
+    },
+    changeAside () {
+      this.isasidecollapse = !this.isasidecollapse
+      Bus.$emit('isasidecollapse', this.isasidecollapse)
+    },
+    logout () {
+      this.$confirm('确定退出吗?', '退出提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        window.localStorage.removeItem('user')
+        this.$router.push('/login')
+        this.$message({
+          type: 'success',
+          message: '退出成功!'
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消退出'
+        })
       })
     }
   }
@@ -57,6 +84,7 @@ export default {
   align-items: center;
   border-bottom: 1px solid #ccc;
   .header-title{
+    cursor: pointer;
     span{
           margin-left: 10px;
     }

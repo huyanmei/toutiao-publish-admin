@@ -1,10 +1,10 @@
 <!-- 首页布局组件 -->
 <template>
   <el-container class="layout-container">
-    <el-aside width="200px" class="aside">
-      <div class="logo-container">
+    <el-aside width="auto" class="aside">
+      <!-- <div class="logo-container">
       <img src="@/assets/images/logo_admin.png">
-      </div>
+      </div> -->
       <AppAside class="aside-menu" />
     </el-aside>
     <el-container>
@@ -36,7 +36,9 @@ export default {
   computed: {},
   watch: {},
   created () {},
-  mounted () {},
+  mounted () {
+
+  },
   methods: {
   }
 }
@@ -53,7 +55,7 @@ export default {
 }
 .aside{
   .logo-container{
-    width: 199px;
+    width: auto;
     height: 60px;
     background-color: #002033;
     box-sizing: border-box;
@@ -62,9 +64,10 @@ export default {
     align-items: center;
   }
   .aside-menu{
-    height: calc(100% - 60px)
+    height: 100%;
+    // height: calc(100% - 60px)
   }
   }
-.header{}
-.main{background-color: #fff;}
+.header{background-color: #fff;}
+.main{background-color: #fdfdfd;}
 </style>

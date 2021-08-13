@@ -2,11 +2,12 @@
 <template>
 <!-- el-menu-item 的 index 不能重复，确保唯一即可 -->
   <el-menu
-        default-active="/"
+        :default-active="$route.path"
         class="nav-menu"
         background-color="#002033"
         text-color="#fff"
         active-text-color="#ffd04b"
+        :collapse="isasidecollapse"
         router>
         <el-menu-item index="/">
           <i class="el-icon-location"></i>
@@ -40,24 +41,31 @@
 </template>
 
 <script>
+import Bus from '@/utils/bus.js'
 export default {
   name: 'AppAside',
   components: {},
-  props: {},
   data () {
     return {
+      isasidecollapse: false,
+      activerouter: '/'
     }
   },
   computed: {},
   watch: {},
-  created () {},
-  mounted () {},
+  created () {
+    Bus.$on('isasidecollapse', (isasidecollapse) => {
+      this.isasidecollapse = isasidecollapse
+    })
+  },
+  mounted () {
+  },
   methods: {
   }
 }
 
 </script>
 
-<style lang='scss' scoped>
+<style lang='less' scoped>
 
 </style>

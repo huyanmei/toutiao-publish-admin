@@ -36,15 +36,17 @@ export default {
       },
       formRules: {
         mobile: [
-          { required: true, message: '请输入手机号', trigger: 'change' },
+          // blur: 失去焦点 change: 内容改变
+          { required: true, message: '请输入手机号', trigger: 'blur' },
           { pattern: /^1[3|5|7|8|9]\d{9}$/, message: '请输入正确的号码格式' }
         ],
         code: [
-          { required: true, message: '验证码不能为空', trigger: 'change' },
+          { required: true, message: '验证码不能为空', trigger: 'blur' },
           { pattern: /^\d{6}$/, message: '请输入正确的验证码格式' }
         ],
         agree: [
           {
+            // 自定义验证规则，验证通过callback(),验证失败 callback(new Error('错误消息'))
             validator: (rule, value, callback) => {
               if (value) {
                 callback()
@@ -52,7 +54,7 @@ export default {
                 callback(new Error('请同意用户协议'))
               }
             },
-            trigger: 'change'
+            trigger: 'blur'
           }
         ]
       },
@@ -80,10 +82,10 @@ export default {
           type: 'success'
         })
         this.loginLoading = false
+        window.localStorage.setItem('user', JSON.stringify(res.data.data))
         this.$router.push({
           name: 'home'
         })
-        console.log(res)
       }).catch(err => {
         console.log('登录失败', err)
         this.$message.error('登录失败，手机号或验证码错误')
