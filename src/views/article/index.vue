@@ -103,7 +103,7 @@
         width="100"
         label="操作">
         <template slot-scope="scope">
-        <el-button @click="handleClick(scope.row)" type="primary" size="mini" icon="el-icon-edit" circle></el-button>
+        <el-button @click="$router.push('/publish?id='+scope.row.id.toString())" type="primary" size="mini" icon="el-icon-edit" circle></el-button>
         <el-button type="danger" size="mini" icon="el-icon-delete" circle @click="onDeleteArticle(scope.row.id)"></el-button>
       </template>
       </el-table-column>
