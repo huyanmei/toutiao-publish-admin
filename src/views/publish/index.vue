@@ -8,11 +8,11 @@
           <el-breadcrumb-item>{{ $route.query.id ? '修改文章' : '发布文章'}}</el-breadcrumb-item>
         </el-breadcrumb>
       </div>
-      <el-form ref="form" :model="article" label-width="40px">
-        <el-form-item label="标题">
+      <el-form ref="publish-form" :rules="publishRules" :model="article" label-width="60px">
+        <el-form-item label="标题" prop="title">
           <el-input v-model="article.title"></el-input>
         </el-form-item>
-        <el-form-item label="内容">
+        <el-form-item label="内容" prop="content">
           <el-tiptap v-model="article.content" :extensions="extensions" height="350" placeholder="请输入文章内容..." />
           <!-- <el-input type="textarea" v-model="article.content"></el-input> -->
         </el-form-item>
@@ -24,7 +24,7 @@
             <el-radio :label="-1">自动</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="频道">
+        <el-form-item label="频道" prop="channel_id">
           <el-select v-model="article.channel_id" placeholder="请选择频道">
             <el-option :label="channel.name" :value="channel.id" v-for="(channel,index) in channels" :key="index">
             </el-option>
@@ -81,6 +81,16 @@ export default {
   props: {},
   data () {
     return {
+      article: {
+        title: '', // 文章标题
+        content: '', // 文章内容
+        cover: { // 文章封面
+          type: 0, // 封面类型 -1:自动  0:无图  1:1张图片     3:3张图片
+          images: [] // 封面图片的地址
+        },
+        channel_id: null
+      },
+      channels: [], // 文章频道列表
       extensions: [
         new Doc(), // 必须
         new Text(), // 必须
@@ -124,16 +134,27 @@ export default {
         new CodeBlock(), // 代码片段
         new TextColor()
       ],
-      article: {
-        title: '', // 文章标题
-        content: '', // 文章内容
-        cover: { // 文章封面
-          type: 0, // 封面类型 -1:自动  0:无图  1:1张图片     3:3张图片
-          images: [] // 封面图片的地址
-        },
-        channel_id: null
-      },
-      channels: [] // 文章频道列表
+      publishRules: {
+        title: [{
+          required: true, message: '请输入文章标题', trigger: 'blur'
+        }, {
+          min: 5, max: 30, message: '长度在 5 到 30 个字符', trigger: 'blur'
+        }],
+        content: [{
+          required: true, message: '请输入文章内容', trigger: 'blur'
+        }, {
+          validator (rule, value, callback) {
+            if (value === '<p></p>') {
+              callback(new Error('请输入文章内容'))
+            } else {
+              callback()
+            }
+          }
+        }],
+        channel_id: [{
+          required: true, message: '请选择文章频道'
+        }]
+      }
     }
   },
   computed: {},
@@ -147,25 +168,32 @@ export default {
   mounted () {},
   methods: {
     onPublish (draft = false) {
-      const articleId = this.$route.query.id
-      if (articleId) {
-        updateArticle(articleId, this.article, draft).then(res => {
-          this.$message({
-            message: `${draft ? '存入草稿' : '修改'}成功`,
-            type: 'success'
+      this.$refs['publish-form'].validate((valid) => {
+        // 验证失败, 停止提交表单
+        if (!valid) {
+          return
+        }
+        // 验证通过, 提交表单 如果是修改文章执行修改操作，否则执行添加操作
+        const articleId = this.$route.query.id
+        if (articleId) {
+          updateArticle(articleId, this.article, draft).then(res => {
+            this.$message({
+              message: `${draft ? '存入草稿' : '修改'}成功`,
+              type: 'success'
+            })
+            this.$router.push('/article')
+          })
+        } else {
+          addArticle(this.article, draft).then(res => {
+            console.log(res)
+            this.$message({
+              message: `${draft ? '存入草稿' : '发布'}成功`,
+              type: 'success'
+            })
           })
           this.$router.push('/article')
-        })
-      } else {
-        addArticle(this.article, draft).then(res => {
-          console.log(res)
-          this.$message({
-            message: `${draft ? '存入草稿' : '发布'}成功`,
-            type: 'success'
-          })
-        })
-        this.$router.push('/article')
-      }
+        }
+      })
     },
     loadChannels () {
       getArticleChannels().then(res => {

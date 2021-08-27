@@ -5,6 +5,7 @@ import Home from '@/views/home'
 import Layout from '@/views/layout'
 import Article from '@/views/article'
 import Publish from '@/views/publish'
+import Image from '@/views/image'
 import Test from '@/views/test'
 // @就是src目录的路径别名
 // import 有两个作用: 1.执行模块中的代码 2.获取模块中导出的结果
@@ -39,6 +40,10 @@ const routes = [
         path: '/publish', // path为空，会作为默认子路由渲染
         name: 'publish',
         component: Publish
+      }, {
+        path: '/image', // path为空，会作为默认子路由渲染
+        name: 'image',
+        component: Image
       }
     ]
   },
