@@ -16,7 +16,7 @@
         <el-button type="success" size="mini" @click="dialogUploadVisible = true">上传素材</el-button>
       </div>
       <el-row :gutter="10">
-        <el-col :xs="12" :sm="6" :md="6" :lg="4" v-for="(img, index) in images" :key = "index">
+        <el-col :xs="12" :sm="6" :md="6" :lg="4" v-for="(img, index) in images" :key = "index" class="image-item">
           <el-image
             style="height: 100px"
             :src="img.url"
@@ -24,6 +24,18 @@
               :preview-src-list="[img.url]"
             >
           </el-image>
+          <div class="image-action">
+            <el-button
+              type="warning"
+              circle
+              size="mini"
+              :icon="img.is_collected ? 'el-icon-star-on' : 'el-icon-star-off'"
+              :loading="img.loading"
+              @click="onCollent(img)"
+            >
+            </el-button>
+            <el-button type="danger" icon="el-icon-delete" circle size="mini" :loading="img.loading" @click="onDelete(img)"></el-button>
+          </div>
         </el-col>
       </el-row>
       <el-pagination
@@ -32,7 +44,7 @@
       layout="prev, pager, next"
       :total="totalCount"
       :page-size="pageSize"
-      :disabled="loading"
+      :disabled="pageLoading"
       :current-page.sync="page"
       @current-change="onCurrentChange"
        />
@@ -57,7 +69,7 @@
 </template>
 
 <script>
-import { getImages } from '@/api/image'
+import { getImages, collectImages, deleteImages } from '@/api/image'
 export default {
   name: 'ImageIndex',
   components: {},
@@ -74,7 +86,7 @@ export default {
       totalCount: 0, // 总数据条数
       pageSize: 20, // 每页大小
       page: 1, // 当前页码
-      loading: true
+      pageLoading: true
     }
   },
   computed: {},
@@ -86,7 +98,7 @@ export default {
   mounted () {},
   methods: {
     loadImages (page = 1) {
-      this.loading = true
+      this.pageLoading = true
       // 重置高亮页码，防止数据和页码不对应,切换到收藏的时候页码回到第1页
       this.page = page
       getImages({
@@ -94,9 +106,14 @@ export default {
         page,
         per_page: this.pageSize
       }).then(res => {
-        this.images = res.data.data.results
+        const results = res.data.data.results
+        results.forEach(img => {
+          // 在接收到的数据img对象中手动添加loading状态来控制每个收藏按钮
+          img.loading = false
+        })
+        this.images = results
         this.totalCount = res.data.data.total_count
-        this.loading = false
+        this.pageLoading = false
         console.log(res)
       })
     },
@@ -104,11 +121,39 @@ export default {
     //   this.loadImages(1)
     // },
     onUploadSuccess () {
-      this.loadImages(false)
+      // 关闭对话框
       this.dialogUploadVisible = false
+      // 更新素材列表
+      this.loadImages(this.page)
+      this.$message({
+        type: 'success',
+        message: '上传成功'
+      })
     },
     onCurrentChange (page) {
       this.loadImages(page)
+    },
+    onCollent (img) {
+      collectImages(img.id, !img.is_collected).then(res => {
+        // 更新视图状态
+        img.is_collected = !img.is_collected
+        img.loading = false
+        // 关闭 loading
+        console.log(res)
+      })
+    },
+    onDelete (img) {
+      img.loading = true
+      deleteImages(img.id).then((res) => {
+        console.log(res)
+        // 重新加载数据列表
+        this.loadImages(this.page)
+        img.loading = false
+        this.$message({
+          type: 'success',
+          message: '删除成功'
+        })
+      })
     }
   }
 }
@@ -121,4 +166,24 @@ export default {
   display: flex;
   justify-content: space-between;
 }
+.image-item{
+  position: relative;
+}
+.image-action{
+  position:absolute;
+  left: 5px;
+  right: 5px;
+  bottom: 4px;
+  background-color:rgba(204, 204, 204,0.6);
+  height:30px;
+  line-height: 30px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+  /deep/ .el-button--mini.is-circle{
+    padding: 5px;
+  }
+}
+
 </style>
