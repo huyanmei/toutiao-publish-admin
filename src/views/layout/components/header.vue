@@ -39,6 +39,13 @@ export default {
   watch: {},
   created () {
     this.loadUserProfile()
+    // 注册自定义事件，当这个事件发布以后，这个注册函数就会被调用到
+    Bus.$on('update-user', (data) => {
+      // 注意: 不要直接这么赋值 this.user = data
+      // 因为对象之间赋值的是引用，会导致相互影响的问题, 比如修改用户名为123头部也会跟着联动，我们需要的效果是修改并保存以后头部数据才发生变化
+      this.user.name = data.name
+      this.user.photo = data.photo
+    })
   },
   mounted () {},
   methods: {

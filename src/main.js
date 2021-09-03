@@ -15,7 +15,8 @@ import 'element-tiptap/lib/index.css'
 
 // 加载全局样式文件
 import './styles/index.less'
-
+import * as echarts from 'echarts'
+Vue.prototype.$echarts = echarts
 // import JSONbig from 'json-bigint'
 // const str = '{ "id": 1253585734669959168 }'
 // console.log(JSON.parse(str)) // 125358573466995920

@@ -8,6 +8,7 @@ import Publish from '@/views/publish'
 import Image from '@/views/image'
 import Comment from '@/views/comment'
 import Settings from '@/views/settings'
+import Fans from '@/views/fans'
 import Test from '@/views/test'
 // @就是src目录的路径别名
 // import 有两个作用: 1.执行模块中的代码 2.获取模块中导出的结果
@@ -54,6 +55,10 @@ const routes = [
         path: '/settings',
         name: 'settings',
         component: Settings
+      }, {
+        path: '/fans',
+        name: 'fans',
+        component: Fans
       }
     ]
   },
