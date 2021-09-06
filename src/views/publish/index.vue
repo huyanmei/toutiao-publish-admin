@@ -31,13 +31,15 @@
             默认监听 input 事件，当事件发生，它会让绑定数据 = 事件参数
             @input="article.cover.images[index] = 事件参数"
             注意： v-model 只是简写了 实质还是处理父子组件通信传值
+            参考文档： https://cn.vuejs.org/v2/guide/components-custom-events.html#%E8%87%AA%E5%AE%9A%E4%B9%89%E7%BB%84%E4%BB%B6%E7%9A%84-v-model
           -->
-          <template v-if="article.cover.type > 0">
+          <div class="cover-container" v-if="article.cover.type > 0">
             <upload-cover
             v-for="(cover, index) in article.cover.type"
             :key="cover"
-            v-model="article.cover.images[index]" />
-          </template>
+            v-model="article.cover.images[index]"
+            />
+          </div>
           <!-- 需要把选好的封面图片地址放到article.cover.images数组中 -->
           <!-- 如果想要在事件处理函数自定义传参以后继续使用哪个事件本身的参数，则需要手动指定 $event，它就代表哪个事件本身的参数 -->
           <!-- <template v-if="article.cover.type > 0">
@@ -128,15 +130,12 @@ export default {
         new Image({
           // 组件默认会把图片处理成base64格式字符串和内容存储在一起
           uploadRequest (file) {
-            console.log('file' + file)
             // 如果接口要求 Content-Type 是 multipart/form-data ,则请求体必须使用 FormData
             const fd = new FormData()
             fd.append('image', file)
             // 第一个 return 是返回 Promise 对象，因为 axios 本身就是返回Promise对象
             return uploadImage(fd).then(res => {
               // 这个return是返回最后的结果
-              console.log(fd)
-              console.log(res)
               return res.data.data.url
             })
           } // 图片的上传方法,返回一个 Promise<url>
@@ -227,7 +226,6 @@ export default {
     loadArticle () {
       getArticle(this.$route.query.id).then(res => {
         this.article = res.data.data
-        console.log(res)
         // this.$message({
         //   message: '发布成功',
         //   type: 'success'
@@ -236,7 +234,6 @@ export default {
     },
     onUpdateCover (index, url) {
       this.article.cover.images[index] = url
-      console.log(index)
     }
   }
 }
@@ -244,5 +241,10 @@ export default {
 </script>
 
 <style lang='less' scoped>
-
+.cover-container{
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+}
 </style>
