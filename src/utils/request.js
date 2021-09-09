@@ -1,6 +1,9 @@
 // 基于axios封装的请求模块
 import axios from 'axios'
 import JSONbig from 'json-bigint'
+import router from '@/router'
+// 非组件模块可以这样加载使用 element 的 message 提示组件
+import { Message } from 'element-ui'
 
 // 创建一个axios实例，说白了就是复制一个axios，通过这个实例去发送请求，把需要的配置给这个实例来处理
 const request = axios.create({
@@ -36,6 +39,35 @@ request.interceptors.request.use(
   // 请求失败会经过这里
     return Promise.reject(error)
   })
+// 响应拦截器
+request.interceptors.response.use(function (response) {
+  // 所有响应码为 2XX 的响应都会进入这里
+  // response 是响应处理
+  // 注意: 一定要把响应结果 return,否则真正发请求的位置拿不到数据
+  return response
+}, function (error) {
+  const { status } = error.response
+  // 任何超出 2XX 的响应码都会进入这里
+  // console.dir(error)可以显示一个对象所有的属性和方法
+  if (status === 401) {
+    // 跳转到登录页面并清除本地存储中的用户登录状态
+    window.localStorage.removeItem('user')
+    router.push('/login')
+    Message.error('登录状态无效，请重新登录')
+  } else if (status === 403) {
+    // token 未携带或过期 (没有操作权限)
+    Message({
+      type: 'warning',
+      message: '没有操作权限'
+    })
+  } else if (status === 400) {
+    // 客户端请求参数错误
+    Message.error('参数错误，请检查请求参数')
+  } else if (status >= 500) {
+    Message.error('服务端内部异常，请稍后重试')
+  }
+  return Promise.reject(error)
+})
 
 // 导出请求方法
 export default request
